@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  password      String?   // Null if OAuth
+  avatarUrl     String?
+  role          Role      @default(USER)
+  
+  // Gamification
+  totalPoints   Int       @default(0)
+  currentRank   String    @default("BRONZE") // Enum logic handled in app
+  
+  tasks         UserTask[]
+  pointHistory  PointHistory[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Category {
+  id      String @id @default(uuid())
+  name    String
+  tasks   Task[]
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EPIC
+}
+
+model Task {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  
+  difficulty  Difficulty
+  basePoints  Int
+  
+  // Requirements
+  requiresPhoto Boolean   @default(true)
+  requiresGps   Boolean   @default(false)
+  
+  active      Boolean     @default(true)
+  
+  userTasks   UserTask[]
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum TaskStatus {
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model UserTask {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  taskId      String
+  task        Task        @relation(fields: [taskId], references: [id])
+  
+  status      TaskStatus  @default(IN_PROGRESS)
+  proofUrl    String?     // URL ảnh/file
+  proofMeta   Json?       // GPS, metadata khác
+  
+  submittedAt DateTime?
+  reviewedAt  DateTime?
+  reviewedBy  String?     // Admin ID
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@unique([userId, taskId])
+}
+
+model PointHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Int
+  reason      String   // "Completed Task X", "Daily Login", etc.
+  createdAt   DateTime @default(now())
+}
