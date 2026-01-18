@@ -54,18 +54,20 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                         </Badge>
                         <div className="flex items-center gap-3">
                             <span className="text-2xl font-bold text-primary">+{task.basePoints} pts</span>
-                            {/* Only show delete for personal tasks (creatorId exists) */}
-                            {task.creatorId && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={handleDelete}
-                                    disabled={isDeleting}
-                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </Button>
-                            )}
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleDelete}
+                                disabled={isDeleting || !task.creatorId}
+                                className={`h-8 w-8 rounded-full transition-colors ${task.creatorId
+                                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                        : "text-muted-foreground/30 cursor-not-allowed"
+                                    }`}
+                                title={task.creatorId ? "Delete Task" : "Cannot delete system tasks"}
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </Button>
                         </div>
                     </div>
 
