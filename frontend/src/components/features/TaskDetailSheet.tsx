@@ -42,7 +42,7 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:max-w-md bg-background border-l border-border/50">
                 <SheetHeader className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between pr-10">
                         <Badge variant="outline" className={`
                             px-3 py-1 text-sm font-medium rounded-full
                             ${task.difficulty === 'EASY' ? 'bg-green-500/10 text-green-500 border-green-500/20' : ''}
@@ -61,8 +61,8 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                                 onClick={handleDelete}
                                 disabled={isDeleting || !task.creatorId}
                                 className={`h-8 w-8 rounded-full transition-colors ${task.creatorId
-                                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                        : "text-muted-foreground/30 cursor-not-allowed"
+                                    ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    : "text-muted-foreground/30 cursor-not-allowed"
                                     }`}
                                 title={task.creatorId ? "Delete Task" : "Cannot delete system tasks"}
                             >
