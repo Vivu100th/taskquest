@@ -145,12 +145,12 @@ export default function TasksPage() {
                                     onChange={(icon) => setNewTask({ ...newTask, icon })}
                                 />
                                 <div className="flex-1 space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Task Name</Label>
+                                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide ml-1">Task Name</Label>
                                     <Input
                                         value={newTask.title}
                                         onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                         placeholder="E.g. Finish Web Design"
-                                        className="bg-slate-50 border-slate-100 rounded-2xl h-14 text-lg focus-visible:ring-indigo-500"
+                                        className="bg-muted/30 border-border rounded-2xl h-14 text-lg focus-visible:ring-ring"
                                         autoFocus
                                     />
                                 </div>
@@ -158,7 +158,7 @@ export default function TasksPage() {
 
                             {/* Time Chips */}
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Time of Day</Label>
+                                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide ml-1">Time of Day</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {['ALL_DAY', 'MORNING', 'NOON', 'AFTERNOON'].map((t) => (
                                         <div
@@ -167,8 +167,8 @@ export default function TasksPage() {
                                             className={cn(
                                                 "px-4 py-2.5 rounded-2xl text-sm font-bold cursor-pointer transition-all border-2",
                                                 timeChip === t
-                                                    ? "bg-indigo-50/50 text-indigo-600 border-indigo-500"
-                                                    : "bg-slate-50 text-slate-500 border-transparent hover:bg-slate-100"
+                                                    ? "bg-primary/10 text-primary border-primary/20"
+                                                    : "bg-muted/30 text-muted-foreground border-transparent hover:bg-muted"
                                             )}
                                         >
                                             {t === 'ALL_DAY' ? 'All Day' : t === 'MORNING' ? 'Morning' : t === 'NOON' ? 'Noon' : 'Afternoon'}
@@ -180,7 +180,7 @@ export default function TasksPage() {
                             {/* Date & Duration Grid */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Date</Label>
+                                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide ml-1">Date</Label>
                                     <Input
                                         type="date"
                                         value={newTask.startTime ? format(new Date(newTask.startTime), 'yyyy-MM-dd') : ''}
@@ -191,28 +191,28 @@ export default function TasksPage() {
                                             d.setHours(current.getHours(), current.getMinutes());
                                             setNewTask({ ...newTask, startTime: d.toISOString() });
                                         }}
-                                        className="bg-slate-50 border-slate-100 rounded-2xl h-12"
+                                        className="bg-muted/30 border-border rounded-2xl h-12"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Duration (Min)</Label>
+                                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide ml-1">Duration (Min)</Label>
                                     <Input
                                         type="number"
                                         value={newTask.duration}
                                         onChange={(e) => setNewTask({ ...newTask, duration: Number(e.target.value) })}
-                                        className="bg-slate-50 border-slate-100 rounded-2xl h-12"
+                                        className="bg-muted/30 border-border rounded-2xl h-12"
                                     />
                                 </div>
                             </div>
 
                             {/* Description / Notes */}
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Notes</Label>
+                                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide ml-1">Notes</Label>
                                 <Textarea
                                     value={newTask.description}
-                                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewTask({ ...newTask, description: e.target.value })}
                                     placeholder="Add details..."
-                                    className="bg-slate-50 border-slate-100 rounded-2xl min-h-[100px] resize-none focus-visible:ring-indigo-500"
+                                    className="bg-muted/30 border-border rounded-2xl min-h-[100px] resize-none focus-visible:ring-ring"
                                 />
                             </div>
 
@@ -222,7 +222,7 @@ export default function TasksPage() {
                             <Button
                                 onClick={handleCreateTask}
                                 disabled={isSubmitting}
-                                className="w-full h-14 text-lg font-bold rounded-2xl bg-indigo-500 hover:bg-indigo-600 shadow-lg shadow-indigo-200 dark:shadow-none"
+                                className="w-full h-14 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 text-primary-foreground dark:shadow-none"
                             >
                                 {isSubmitting ? 'Creating...' : 'Create Task'}
                             </Button>
