@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, RotateCcw, X } from 'lucide-react';
+import { Play, Pause, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +24,9 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
 
     // Initialize audio
     useEffect(() => {
-        alarmAudioRef.current = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        if (typeof window !== 'undefined') {
+            alarmAudioRef.current = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        }
     }, []);
 
     // Timer Logic
@@ -36,7 +38,7 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                     if (prev <= 1) {
                         setIsRunning(false);
                         if (onComplete) onComplete();
-                        alarmAudioRef.current?.play().catch(e => console.log('Audio play failed', e));
+                        alarmAudioRef.current?.play().catch(() => { });
                         return 0;
                     }
                     return prev - 1;
@@ -54,19 +56,11 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
     const seconds = currentSeconds % 60;
     const displayTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-    // Progress for Ring (Time / MAX_MINUTES) - mimics clock position
-    // If we want the ring to represent "Time Left in Session", we would use current/total.
-    // But the HTML original used it as a "Set Time" knob, scaling 0-60 mins.
-    // So visual position = currentMinutes / 60.
     const percentCircle = Math.min(currentSeconds / (MAX_MINUTES * 60), 1);
     const offset = CIRCUMFERENCE - (percentCircle * CIRCUMFERENCE);
 
     // Knob Position
     const angle = percentCircle * 2 * Math.PI;
-    // -90 deg rotation in SVG means 0 is at 12 o'clock.
-    // SVG standard: 0 is 3 o'clock. CSS rotate(-90deg) shifts it.
-    // To match SVG stroke, we calculate angle from 12 o'clock (0 rad).
-    // Math: x = cx + r * sin(a), y = cy - r * cos(a)
     const knobX = 150 + 130 * Math.sin(angle);
     const knobY = 150 - 130 * Math.cos(angle);
 
@@ -85,7 +79,6 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
         const dx = clientX - centerX;
         const dy = clientY - centerY;
 
-        // Atan2: 0 is 3 o'clock. We want 0 to be 12 o'clock.
         let angleRad = Math.atan2(dy, dx);
         angleRad += Math.PI / 2; // Shift to 12 o'clock
 
@@ -93,13 +86,11 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
 
         const percent = angleRad / (2 * Math.PI);
         let mins = percent * MAX_MINUTES;
-        // Snap to nearest minute
         mins = Math.round(mins);
-        if (mins < 1) mins = 1; // Minimum 1 min
+        if (mins < 1) mins = 1;
 
         const newSeconds = mins * 60;
         setCurrentSeconds(newSeconds);
-        // Only update total if not running (resetting the session length)
         if (!isRunning) {
             setTotalSeconds(newSeconds);
         }
@@ -146,39 +137,32 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
     }, [isDragging, handleDrag]);
 
     return (
-        <div className="flex flex-col items-center gap-8 p-6 bg-slate-900 rounded-3xl shadow-2xl relative w-full h-full max-w-md mx-auto">
-            {onClose && (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-4 right-4 text-slate-400 hover:text-white"
-                    onClick={onClose}
-                >
-                    <X className="w-6 h-6" />
-                </Button>
-            )}
+        <div className="flex flex-col items-center gap-8 p-8 bg-card/95 backdrop-blur-xl rounded-[40px] shadow-2xl relative w-full h-full max-w-md mx-auto border border-border/50">
+            {/* Removed top right close button to fix duplicate */}
 
-            <div className="text-center space-y-1">
-                <h1 className="text-2xl font-bold tracking-widest text-cyan-400 uppercase">Focus Mode</h1>
-                <p className="text-slate-400 text-sm">Drag ring to set timer</p>
+            <div className="text-center space-y-2">
+                <h1 className="text-2xl font-bold tracking-widest text-primary uppercase">Focus Mode</h1>
+                <p className="text-muted-foreground text-sm">Drag ring to set timer</p>
             </div>
 
             {/* Timer Circle */}
             <div className="relative w-[300px] h-[300px] flex items-center justify-center shrink-0">
                 {/* SVG Background Ring */}
                 <svg className="absolute top-0 left-0 w-full h-full transform -rotate-90 pointer-events-none" viewBox="0 0 300 300">
-                    <circle cx="150" cy="150" r="130" fill="none" stroke="#1e293b" strokeWidth="12" strokeLinecap="round" />
+                    <circle cx="150" cy="150" r="130" fill="none" stroke="currentColor" className="text-muted/30" strokeWidth="12" strokeLinecap="round" />
                 </svg>
 
                 {/* SVG Progress Ring */}
-                <svg className="absolute top-0 left-0 w-full h-full transform -rotate-90 pointer-events-none drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" viewBox="0 0 300 300">
+                <svg className="absolute top-0 left-0 w-full h-full transform -rotate-90 pointer-events-none drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]" viewBox="0 0 300 300">
                     <circle
                         cx="150" cy="150" r="130"
-                        fill="none" stroke="#22d3ee" strokeWidth="12"
+                        fill="none"
+                        stroke="currentColor"
+                        className="text-primary transition-all duration-75 ease-linear"
+                        strokeWidth="12"
                         strokeLinecap="round"
                         strokeDasharray={CIRCUMFERENCE}
                         strokeDashoffset={offset}
-                        className="transition-all duration-75 ease-linear"
                     />
                 </svg>
 
@@ -191,8 +175,8 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                 >
                     <div
                         className={cn(
-                            "absolute w-8 h-8 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] transform -translate-x-1/2 -translate-y-1/2 transition-transform hover:bg-cyan-50",
-                            isDragging && "scale-125"
+                            "absolute w-8 h-8 bg-background border-4 border-primary rounded-full shadow-[0_0_20px_rgba(99,102,241,0.4)] transform -translate-x-1/2 -translate-y-1/2 transition-transform",
+                            isDragging && "scale-125 ring-4 ring-primary/20"
                         )}
                         style={{ left: knobX, top: knobY }}
                     />
@@ -202,39 +186,44 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
 
                     {/* Hourglass SVG */}
-                    <div className="w-12 h-16 relative mb-2 opacity-90">
-                        <svg viewBox="0 0 100 160" className="w-full h-full drop-shadow-lg">
+                    <div className="w-16 h-20 relative mb-4 opacity-90 scale-90">
+                        <svg viewBox="0 0 100 160" className="w-full h-full drop-shadow-md">
                             <defs>
                                 <linearGradient id="sandTop" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stopColor="#22d3ee" />
-                                    <stop offset={topLevel} stopColor="#22d3ee" />
+                                    <stop offset="0%" stopColor="currentColor" className="text-primary" />
+                                    <stop offset={topLevel} stopColor="currentColor" className="text-primary" />
                                     <stop offset={topLevel} stopColor="transparent" />
                                 </linearGradient>
                                 <linearGradient id="sandBottom" x1="0%" y1="100%" x2="0%" y2="0%">
-                                    <stop offset="0%" stopColor="#22d3ee" />
-                                    <stop offset={bottomLevel} stopColor="#22d3ee" />
+                                    <stop offset="0%" stopColor="currentColor" className="text-primary" />
+                                    <stop offset={bottomLevel} stopColor="currentColor" className="text-primary" />
                                     <stop offset={bottomLevel} stopColor="transparent" />
                                 </linearGradient>
                             </defs>
 
                             {/* Frame */}
-                            <path d="M10,2 L90,2 C95,2 95,5 92,10 L72,70 C70,75 70,85 72,90 L92,150 C95,155 95,158 90,158 L10,158 C5,158 5,155 8,150 L28,90 C30,85 30,75 28,70 L8,10 C5,5 5,2 10,2 Z" fill="none" stroke="#4b5563" strokeWidth="4" />
+                            <path d="M10,2 L90,2 C95,2 95,5 92,10 L72,70 C70,75 70,85 72,90 L92,150 C95,155 95,158 90,158 L10,158 C5,158 5,155 8,150 L28,90 C30,85 30,75 28,70 L8,10 C5,5 5,2 10,2 Z"
+                                fill="none"
+                                stroke="currentColor"
+                                className="text-muted-foreground/50"
+                                strokeWidth="4"
+                            />
 
                             {/* Top Sand */}
                             <path d="M10,5 L90,5 L70,75 L30,75 Z" fill="url(#sandTop)" opacity="0.9" />
 
                             {/* Stream */}
-                            <rect x="48" y="70" width="4" height="20" fill="#22d3ee" className={cn("transition-opacity duration-300", isRunning ? "opacity-100" : "opacity-0")} />
+                            <rect x="48" y="70" width="4" height="20" fill="currentColor" className={cn("text-primary transition-opacity duration-300", isRunning ? "opacity-100" : "opacity-0")} />
 
                             {/* Bottom Sand */}
                             <path d="M30,85 L70,85 L90,155 L10,155 Z" fill="url(#sandBottom)" opacity="0.9" />
                         </svg>
                     </div>
 
-                    <div className="text-4xl font-mono font-bold text-white tracking-wider">{displayTime}</div>
+                    <div className="text-5xl font-mono font-bold text-foreground tracking-tighter tabular-nums">{displayTime}</div>
                     <div className={cn(
-                        "text-xs font-medium uppercase tracking-widest mt-1",
-                        isRunning ? "text-green-400" : "text-cyan-500"
+                        "text-xs font-bold uppercase tracking-[0.2em] mt-2 transition-colors",
+                        isRunning ? "text-primary animate-pulse" : "text-muted-foreground"
                     )}>
                         {isRunning ? "Focusing..." : "Ready"}
                     </div>
@@ -244,23 +233,23 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
             {/* Controls */}
             <div className="flex gap-6 z-30">
                 <Button
-                    variant="secondary"
+                    variant="outline"
                     size="icon"
-                    className="h-12 w-12 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
+                    className="h-14 w-14 rounded-full border-2 border-muted hover:border-primary/50 hover:bg-primary/5 transition-all text-muted-foreground hover:text-primary"
                     onClick={() => {
                         setIsRunning(false);
-                        const resetVal = Math.max(totalSeconds, 60); // min 1 min
+                        const resetVal = Math.max(totalSeconds, 60);
                         setCurrentSeconds(resetVal);
                     }}
                 >
-                    <RotateCcw className="w-5 h-5" />
+                    <RotateCcw className="w-6 h-6" />
                 </Button>
 
                 <Button
                     size="icon"
                     className={cn(
-                        "h-16 w-16 rounded-full transition-all transform active:scale-95 shadow-lg shadow-cyan-500/20",
-                        isRunning ? "bg-amber-500 hover:bg-amber-600" : "bg-cyan-500 hover:bg-cyan-400"
+                        "h-20 w-20 rounded-full transition-all transform hover:scale-105 shadow-xl shadow-primary/20",
+                        isRunning ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     )}
                     onClick={() => setIsRunning(!isRunning)}
                 >
@@ -269,7 +258,7 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
             </div>
 
             {/* Quick Presets */}
-            <div className="flex gap-3 text-sm z-30">
+            <div className="flex gap-2 text-sm z-30">
                 {[5, 15, 25, 45].map(min => (
                     <button
                         key={min}
@@ -278,9 +267,12 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                             setTotalSeconds(min * 60);
                             setCurrentSeconds(min * 60);
                         }}
-                        className="px-3 py-1 bg-slate-800 rounded-full hover:bg-slate-700 text-slate-300 transition"
+                        className={cn(
+                            "px-4 py-2 rounded-full font-medium transition-all text-muted-foreground hover:text-foreground",
+                            totalSeconds === min * 60 ? "bg-primary/10 text-primary font-bold" : "bg-muted/50 hover:bg-muted"
+                        )}
                     >
-                        {min}'
+                        {min}m
                     </button>
                 ))}
             </div>
