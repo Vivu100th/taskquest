@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Task } from "@/lib/api";
-import { Play, CheckCircle2, Clock, MapPin, Camera, Trash2 } from "lucide-react";
+import { Play, CheckCircle2, Clock, MapPin, Camera, Trash2, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -51,9 +51,9 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-md bg-background border-l border-border/50">
+            <SheetContent className="w-full sm:max-w-md bg-background border-l border-border/50" showCloseButton={false}>
                 <SheetHeader className="space-y-4">
-                    <div className="flex items-center justify-between pr-10">
+                    <div className="flex items-center justify-between">
                         <Badge variant="outline" className={`
                             px-3 py-1 text-sm font-medium rounded-full
                             ${task.difficulty === 'EASY' ? 'bg-green-500/10 text-green-500 border-green-500/20' : ''}
@@ -84,6 +84,15 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                                 }
                             >
                                 <Trash2 className="w-5 h-5" />
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => onOpenChange(false)}
+                                className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            >
+                                <X className="w-5 h-5" />
                             </Button>
                         </div>
                     </div>
