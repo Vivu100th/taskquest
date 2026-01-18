@@ -120,9 +120,7 @@ export default function TasksPage() {
                 
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
-                        <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground">
-                            <Plus className="w-6 h-6" />
-                        </DialogTrigger>
+                        </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-card border-border sm:max-w-md">
                         <DialogHeader>
