@@ -184,7 +184,7 @@ export default function TasksPage() {
                                     <Input
                                         type="date"
                                         value={newTask.startTime ? format(new Date(newTask.startTime), 'yyyy-MM-dd') : ''}
-                                        onChange={(e) => {
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                             const d = new Date(e.target.value);
                                             // Preserve time
                                             const current = new Date(newTask.startTime || new Date());
