@@ -14,7 +14,7 @@ interface SandClockTimerProps {
 }
 
 export function SandClockTimer({ taskId, initialMinutes = 25, activeTask, onComplete, onClose }: SandClockTimerProps) {
-    const MAX_MINUTES = 60;
+    const MAX_MINUTES = 120;
     const RADIUS = 140;
     const STROKE_WIDTH = 16;
     const CENTER = 160;
@@ -118,7 +118,7 @@ export function SandClockTimer({ taskId, initialMinutes = 25, activeTask, onComp
 
     // Calculations
     const minutes = Math.ceil(currentSeconds / 60);
-    const progressPercent = currentSeconds / (MAX_MINUTES * 60);
+    const progressPercent = totalSeconds > 0 ? currentSeconds / totalSeconds : 0;
     const progressOffset = CIRCUMFERENCE - (progressPercent * CIRCUMFERENCE);
 
     // Knob position (angle from top, clockwise)
@@ -154,12 +154,12 @@ export function SandClockTimer({ taskId, initialMinutes = 25, activeTask, onComp
         );
     }
 
-    // Labels (60, 15, 30, 45)
+    // Labels (120, 30, 60, 90)
     const labels = [
-        { value: 60, angle: -Math.PI / 2 },
-        { value: 15, angle: 0 },
-        { value: 30, angle: Math.PI / 2 },
-        { value: 45, angle: Math.PI },
+        { value: 120, angle: -Math.PI / 2 },
+        { value: 30, angle: 0 },
+        { value: 60, angle: Math.PI / 2 },
+        { value: 90, angle: Math.PI },
     ];
 
     // Drag Handlers (only when not started)
