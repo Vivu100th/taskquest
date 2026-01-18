@@ -47,84 +47,93 @@
 }
 
 :root {
-  /* Tiimo-inspired Pastel Theme */
-  --pastel-pink: oklch(0.9 0.05 350);
-  --pastel-mint: oklch(0.9 0.05 160);
-  --pastel-blue: oklch(0.9 0.04 240);
-  --pastel-lavender: oklch(0.9 0.05 300);
-  --pastel-yellow: oklch(0.95 0.06 90);
+  /* User's Requested Indigo/Slate Theme */
 
   --radius: 1rem;
-  /* Softer, rounder corners */
 
-  /* Soft Light Mode */
-  --background: oklch(0.98 0.01 240);
-  --foreground: oklch(0.2 0.03 240);
-  /* Softer black */
+  /* 1. Primary Colors (Indigo) */
+  --primary: #6366f1;
+  /* Main */
+  --primary-foreground: #ffffff;
+  /* Hover effect handling in Tailwind generally handles the darkening */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.03 240);
+  /* 2. Background & Text */
+  --background: #f8fafc;
+  /* Site background */
+  --foreground: #1e293b;
+  /* Main Title */
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.03 240);
+  --card: #ffffff;
+  --card-foreground: #1e293b;
 
-  --primary: oklch(0.6 0.15 300);
-  /* Vibrant but soft purple */
-  --primary-foreground: oklch(0.98 0 0);
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
 
-  --secondary: oklch(0.95 0.03 240);
-  --secondary-foreground: oklch(0.3 0.05 240);
+  --secondary: #eef2ff;
+  /* Light indigo background */
+  --secondary-foreground: #6366f1;
 
-  --muted: oklch(0.96 0.01 240);
-  --muted-foreground: oklch(0.5 0.02 240);
+  --muted: #f1f5f9;
+  /* Border color used as muted bg */
+  --muted-foreground: #64748b;
+  /* Secondary text */
 
-  --accent: oklch(0.95 0.04 310);
-  /* Soft pinkish accent */
-  --accent-foreground: oklch(0.3 0.1 310);
+  --accent: #eef2ff;
+  /* Light indigo accent */
+  --accent-foreground: #4f46e5;
 
-  --destructive: oklch(0.7 0.15 20);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive: #ef4444;
+  /* Red */
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(0.9 0.01 240);
-  --input: oklch(0.9 0.01 240);
-  --ring: oklch(0.7 0.1 300);
+  --border: #f1f5f9;
+  --input: #f8fafc;
+  --ring: #6366f1;
+  /* Primary for rings */
 
-  --sidebar: oklch(0.97 0.01 240);
-  --sidebar-foreground: oklch(0.3 0.03 240);
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #64748b;
+
+  /* Custom Status Colors */
+  --color-warning: #f59e0b;
+  /* Important */
 }
 
 .dark {
-  /* Soft Dark Mode (Deep Blue/Slate, not pure black) */
-  --background: oklch(0.15 0.02 260);
-  --foreground: oklch(0.9 0.02 260);
+  /* Dark Mode Adaptation of Indigo/Slate */
+  --background: #0f172a;
+  /* Slate 900 */
+  --foreground: #f8fafc;
+  /* Slate 50 */
 
-  --card: oklch(0.18 0.02 260);
-  --card-foreground: oklch(0.9 0.02 260);
+  --card: #1e293b;
+  /* Slate 800 */
+  --card-foreground: #f8fafc;
 
-  --popover: oklch(0.18 0.02 260);
-  --popover-foreground: oklch(0.9 0.02 260);
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
 
-  --primary: oklch(0.7 0.12 300);
-  /* Lighter purple for dark mode */
-  --primary-foreground: oklch(0.15 0.02 260);
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.25 0.03 260);
-  --secondary-foreground: oklch(0.9 0.02 260);
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
 
-  --muted: oklch(0.25 0.03 260);
-  --muted-foreground: oklch(0.7 0.02 260);
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
 
-  --accent: oklch(0.25 0.05 310);
-  --accent-foreground: oklch(0.9 0.02 260);
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
 
-  --destructive: oklch(0.6 0.15 20);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(0.25 0.02 260);
-  --input: oklch(0.25 0.02 260);
-  --ring: oklch(0.6 0.1 300);
+  --border: #1e293b;
+  --input: #0f172a;
+  --ring: #6366f1;
 
-  --sidebar: oklch(0.14 0.02 260);
-  --sidebar-foreground: oklch(0.9 0.02 260);
+  --sidebar: #0f172a;
+  --sidebar-foreground: #94a3b8;
 }
 
 @layer base {
