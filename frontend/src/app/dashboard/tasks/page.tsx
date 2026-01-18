@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { TimelineView } from '@/components/features/TimelineView';
 import { TaskDetailSheet } from '@/components/features/TaskDetailSheet';
+import { BioBreak } from '@/components/features/BioBreak';
 
 const CATEGORIES = [
     { id: 'cat-health', name: 'Health & Fitness' },
