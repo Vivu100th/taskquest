@@ -59,7 +59,7 @@ export function IconPicker({ icon, onChange }: IconPickerProps) {
                             <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">Or custom</span>
+                            <span className="bg-popover px-2 text-muted-foreground">Or custom</span>
                         </div>
                     </div>
 
