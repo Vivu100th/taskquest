@@ -4,17 +4,39 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Task } from "@/lib/api";
-import { Play, CheckCircle2, Clock, MapPin, Camera } from "lucide-react";
+import { Play, CheckCircle2, Clock, MapPin, Camera, Trash2 } from "lucide-react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface TaskDetailSheetProps {
     task: Task | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onStart: (task: Task) => void;
+    onDelete?: () => void; // Callback to refresh list
 }
 
-export function TaskDetailSheet({ task, open, onOpenChange, onStart }: TaskDetailSheetProps) {
+export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }: TaskDetailSheetProps) {
+    const [isDeleting, setIsDeleting] = useState(false);
+
     if (!task) return null;
+
+    const handleDelete = async () => {
+        if (!confirm('Are you sure you want to delete this task?')) return;
+
+        setIsDeleting(true);
+        try {
+            await api.deleteTask(task.id);
+            toast.success('Task deleted successfully');
+            onOpenChange(false);
+            if (onDelete) onDelete();
+        } catch (error) {
+            toast.error('Failed to delete task');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -30,11 +52,25 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart }: TaskDetai
                         `}>
                             {task.difficulty}
                         </Badge>
-                        <span className="text-2xl font-bold text-primary">+{task.basePoints} pts</span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl font-bold text-primary">+{task.basePoints} pts</span>
+                            {/* Only show delete for personal tasks (creatorId exists) */}
+                            {task.creatorId && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleDelete}
+                                    disabled={isDeleting}
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
                     <div>
-                        <SheetTitle className="text-2xl font-bold">{task.title}</SheetTitle>
+                        <SheetTitle className="text-2xl font-bold text-foreground">{task.title}</SheetTitle>
                         <SheetDescription className="text-base text-muted-foreground mt-2">
                             {task.description || "No description provided."}
                         </SheetDescription>
@@ -81,7 +117,7 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart }: TaskDetai
                 <SheetFooter className="absolute bottom-6 left-6 right-6">
                     <Button
                         size="lg"
-                        className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
+                        className="w-full h-14 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
                         onClick={() => onStart(task)}
                     >
                         <Play className="w-5 h-5 mr-2 fill-current" />

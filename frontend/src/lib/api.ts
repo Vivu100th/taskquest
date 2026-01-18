@@ -90,6 +90,14 @@ class ApiClient {
         return this.request<Task>('/tasks', { method: 'POST', body: data });
     }
 
+    async updateTask(id: string, data: Partial<CreateTaskDto>) {
+        return this.request<Task>(`/tasks/${id}`, { method: 'PATCH', body: data });
+    }
+
+    async deleteTask(id: string) {
+        return this.request<{ success: boolean }>(`/tasks/${id}`, { method: 'DELETE' });
+    }
+
     // Submissions
     async submitTask(taskId: string, data: { proofUrl: string; proofMeta?: object }) {
         return this.request<UserTask>(`/submissions/task/${taskId}`, { method: 'POST', body: data });

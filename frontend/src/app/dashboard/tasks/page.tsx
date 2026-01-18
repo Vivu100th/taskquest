@@ -243,6 +243,7 @@ export default function TasksPage() {
                 onStart={() => {
                     toast.info("Task Started! Good luck.");
                 }}
+                onDelete={fetchTasks}
             />
 
             {/* Hidden dialog for submission logic re-use if needed later */}
