@@ -23,9 +23,21 @@ const RANKS = [
 export class GamificationService {
     constructor(private prisma: PrismaService) { }
 
-    async awardPoints(userId: string, basePoints: number, difficulty: string, reason: string) {
+    async awardPoints(userId: string, basePoints: number, difficulty: string, reason: string, taskId?: string) {
         const multiplier = DIFFICULTY_MULTIPLIER[difficulty] || 1.0;
-        const points = Math.round(basePoints * multiplier);
+        let points = Math.round(basePoints * multiplier);
+
+        // Check if task is personal (has creatorId)
+        if (taskId) {
+            const task = await this.prisma.task.findUnique({
+                where: { id: taskId },
+                select: { creatorId: true },
+            });
+
+            if (task?.creatorId) {
+                points = Math.round(points * 0.5); // 50% points for personal tasks
+            }
+        }
 
         // Update user's total points
         const user = await this.prisma.user.update({

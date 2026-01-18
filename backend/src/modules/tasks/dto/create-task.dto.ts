@@ -33,4 +33,20 @@ export class CreateTaskDto {
     @IsBoolean()
     @IsOptional()
     requiresGps?: boolean;
+
+    @IsString()
+    @IsOptional()
+    startTime?: string;
+
+    @IsString()
+    @IsOptional()
+    endTime?: string;
+
+    @IsInt()
+    @IsOptional()
+    duration?: number;
+
+    @IsBoolean()
+    @IsOptional()
+    isAllDay?: boolean;
 }
