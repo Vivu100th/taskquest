@@ -156,7 +156,7 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                                 {isAdmin ? "Admin View Only" : "Start Now"}
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-none w-auto bg-transparent border-none shadow-none p-0 focus:outline-none">
+                        <DialogContent className="max-w-none w-auto bg-transparent border-none shadow-none p-0 focus:outline-none" showCloseButton={false}>
                             <SandClockTimer
                                 initialMinutes={task.duration || 25}
                                 onClose={() => setIsTimerOpen(false)}
