@@ -22,7 +22,13 @@ export class TasksService {
         });
     }
 
-    async findAll(userId?: string) {
+    async findAll(userId?: string, role?: string) {
+        if (role === 'ADMIN') {
+            return this.prisma.task.findMany({
+                include: { category: true, creator: true },
+            });
+        }
+
         return this.prisma.task.findMany({
             where: {
                 OR: [
