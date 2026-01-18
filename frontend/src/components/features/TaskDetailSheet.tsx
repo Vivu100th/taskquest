@@ -10,6 +10,8 @@ import { Play, CheckCircle2, Clock, MapPin, Camera, Trash2 } from "lucide-react"
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { useState } from "react";
+import { SandClockTimer } from "@/components/features/SandClockTimer";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 interface TaskDetailSheetProps {
     task: Task | null;
@@ -22,8 +24,14 @@ interface TaskDetailSheetProps {
 export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }: TaskDetailSheetProps) {
     const { user } = useAuth();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isTimerOpen, setIsTimerOpen] = useState(false);
 
     if (!task) return null;
+
+    const isSystemTask = !task.creatorId;
+    const isOwner = user?.id === task.creatorId;
+    const isAdmin = user?.role === 'ADMIN';
+    const canStart = !isAdmin && (isSystemTask || isOwner);
 
     const handleDelete = async () => {
         if (!confirm('Are you sure you want to delete this task?')) return;
@@ -64,8 +72,8 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                                 onClick={handleDelete}
                                 disabled={isDeleting || (!task.creatorId && user?.role !== 'ADMIN')}
                                 className={`h-8 w-8 rounded-full transition-colors relative z-50 ${(task.creatorId || user?.role === 'ADMIN')
-                                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                        : "text-muted-foreground/30 cursor-not-allowed"
+                                    ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    : "text-muted-foreground/30 cursor-not-allowed"
                                     }`}
                                 title={
                                     user?.role === 'ADMIN'
@@ -131,14 +139,34 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                 </div>
 
                 <SheetFooter className="absolute bottom-6 left-6 right-6">
-                    <Button
-                        size="lg"
-                        className="w-full h-14 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
-                        onClick={() => onStart(task)}
-                    >
-                        <Play className="w-5 h-5 mr-2 fill-current" />
-                        Start Now
-                    </Button>
+                    <Dialog open={isTimerOpen} onOpenChange={setIsTimerOpen}>
+                        <DialogTrigger asChild>
+                            <Button
+                                size="lg"
+                                className="w-full h-14 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
+                                disabled={!canStart}
+                                onClick={(e) => {
+                                    if (!canStart) {
+                                        e.preventDefault();
+                                        return;
+                                    }
+                                }}
+                            >
+                                <Play className="w-5 h-5 mr-2 fill-current" />
+                                {isAdmin ? "Admin View Only" : "Start Now"}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-none w-auto bg-transparent border-none shadow-none p-0 focus:outline-none">
+                            <SandClockTimer
+                                initialMinutes={task.duration || 25}
+                                onClose={() => setIsTimerOpen(false)}
+                                onComplete={() => {
+                                    setIsTimerOpen(false);
+                                    onStart(task);
+                                }}
+                            />
+                        </DialogContent>
+                    </Dialog>
                 </SheetFooter>
             </SheetContent>
         </Sheet>
