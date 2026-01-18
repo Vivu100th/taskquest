@@ -7,18 +7,25 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export class TasksService {
     constructor(private prisma: PrismaService) { }
 
-    async create(createTaskDto: CreateTaskDto) {
+    async create(createTaskDto: CreateTaskDto, userId: string) {
         return this.prisma.task.create({
             data: {
                 ...createTaskDto,
                 requiresPhoto: createTaskDto.requiresPhoto ?? true,
                 requiresGps: createTaskDto.requiresGps ?? false,
+                creatorId: userId,
             },
         });
     }
 
-    async findAll() {
+    async findAll(userId?: string) {
         return this.prisma.task.findMany({
+            where: {
+                OR: [
+                    { creatorId: null }, // Global system tasks
+                    { creatorId: userId }, // User's personal tasks
+                ],
+            },
             include: { category: true },
         });
     }

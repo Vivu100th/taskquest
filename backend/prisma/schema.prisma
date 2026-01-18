@@ -26,6 +26,7 @@ model User {
   currentRank   String    @default("BRONZE") // Enum logic handled in app
   
   tasks         UserTask[]
+  createdTasks  Task[]    @relation("CreatedTasks")
   pointHistory  PointHistory[]
   
   createdAt     DateTime  @default(now())
@@ -58,6 +59,10 @@ model Task {
   // Requirements
   requiresPhoto Boolean   @default(true)
   requiresGps   Boolean   @default(false)
+  
+  // Creator (null for system tasks, set for user tasks)
+  creatorId   String?
+  creator     User?       @relation("CreatedTasks", fields: [creatorId], references: [id])
   
   active      Boolean     @default(true)
   
