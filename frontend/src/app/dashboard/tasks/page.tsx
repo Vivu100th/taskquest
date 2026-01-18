@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { api, Task, CreateTaskDto } from '@/lib/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,13 +11,6 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { TimelineView } from '@/components/features/TimelineView';
 import { TaskDetailSheet } from '@/components/features/TaskDetailSheet';
-
-const difficultyColors: Record<string, string> = {
-    EASY: 'bg-green-500/20 text-green-400 border-green-500/50',
-    MEDIUM: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50',
-    HARD: 'bg-orange-500/20 text-orange-400 border-orange-500/50',
-    EPIC: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
-};
 
 const CATEGORIES = [
     { id: 'cat-health', name: 'Health & Fitness' },
@@ -120,180 +111,100 @@ export default function TasksPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 max-w-2xl mx-auto pb-20">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Available Tasks</h1>
-                    <p className="text-slate-400 mt-1">Complete tasks to earn points and climb the leaderboard</p>
+                    <h1 className="text-3xl font-bold text-foreground">My Day</h1>
+                    <p className="text-muted-foreground mt-1 text-lg">Focus on what matters now.</p>
                 </div>
-
+                
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-purple-600 hover:bg-purple-700">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Create Task
-                        </Button>
+                        <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground">
+                            <Plus className="w-6 h-6" />
+                        </DialogTrigger>
                     </DialogTrigger>
-                    <DialogContent className="bg-slate-900 border-slate-700 max-w-md">
+                    <DialogContent className="bg-card border-border sm:max-w-md">
                         <DialogHeader>
-                            <DialogTitle className="text-white">Create New Task</DialogTitle>
-                            <DialogDescription>Define your own goal and earn points for completing it.</DialogDescription>
+                            <DialogTitle>Quick Add</DialogTitle>
+                            <DialogDescription>Brain dump your task. We'll help you organize it.</DialogDescription>
                         </DialogHeader>
-
+                        
                         <div className="space-y-4 py-4">
                             <div className="space-y-2">
-                                <Label>Title</Label>
-                                <Input
+                                <Label>What needs doing?</Label>
+                                <Input 
                                     value={newTask.title}
-                                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                                    placeholder="e.g. Meditate for 10 mins"
-                                    className="bg-slate-800 border-slate-700"
+                                    onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                                    placeholder="e.g. Clean the room"
+                                    className="bg-input border-transparent text-lg h-12"
+                                    autoFocus
                                 />
                             </div>
-
-                            <div className="space-y-2">
-                                <Label>Category</Label>
-                                <Select
-                                    value={newTask.categoryId}
-                                    onValueChange={(val) => setNewTask({ ...newTask, categoryId: val })}
-                                >
-                                    <SelectTrigger className="bg-slate-800 border-slate-700">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-slate-700">
-                                        {CATEGORIES.map(cat => (
-                                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
+                            
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Difficulty</Label>
-                                    <Select
-                                        value={newTask.difficulty}
-                                        onValueChange={(val: any) => setNewTask({ ...newTask, difficulty: val })}
+                                    <Label>Category</Label>
+                                    <Select 
+                                        value={newTask.categoryId} 
+                                        onValueChange={(val) => setNewTask({...newTask, categoryId: val})}
                                     >
-                                        <SelectTrigger className="bg-slate-800 border-slate-700">
+                                        <SelectTrigger className="bg-input border-transparent">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-slate-800 border-slate-700">
-                                            <SelectItem value="EASY">Easy (1.0x)</SelectItem>
-                                            <SelectItem value="MEDIUM">Medium (1.5x)</SelectItem>
-                                            <SelectItem value="HARD">Hard (2.0x)</SelectItem>
-                                            <SelectItem value="EPIC">Epic (3.0x)</SelectItem>
+                                        <SelectContent>
+                                            {CATEGORIES.map(cat => (
+                                                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Base Points</Label>
-                                    <Input
-                                        type="number"
-                                        value={newTask.basePoints}
-                                        onChange={(e) => setNewTask({ ...newTask, basePoints: Number(e.target.value) })}
-                                        className="bg-slate-800 border-slate-700"
-                                    />
+                                    <Label>Difficulty</Label>
+                                    <Select 
+                                        value={newTask.difficulty} 
+                                        onValueChange={(val: any) => setNewTask({...newTask, difficulty: val})}
+                                    >
+                                        <SelectTrigger className="bg-input border-transparent">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="EASY">Easy</SelectItem>
+                                            <SelectItem value="MEDIUM">Medium</SelectItem>
+                                            <SelectItem value="HARD">Hard</SelectItem>
+                                            <SelectItem value="EPIC">Epic</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </div>
 
                         <DialogFooter>
-                            <Button onClick={handleCreateTask} disabled={isSubmitting} className="w-full bg-purple-600 hover:bg-purple-700">
-                                {isSubmitting ? 'Creating...' : 'Create Task'}
+                            <Button onClick={handleCreateTask} disabled={isSubmitting} className="w-full h-12 text-lg rounded-xl">
+                                {isSubmitting ? 'Adding...' : 'Add to Timeline'}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tasks.map((task) => (
-                    <Card key={task.id} className="bg-slate-800/50 border-slate-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all">
-                        <CardHeader>
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <CardTitle className="text-white text-lg">{task.title}</CardTitle>
-                                    <CardDescription className="text-slate-400">{task.category?.name}</CardDescription>
-                                </div>
-                                <Badge className={difficultyColors[task.difficulty]}>
-                                    {task.difficulty}
-                                </Badge>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {task.description && (
-                                <p className="text-slate-400 text-sm">{task.description}</p>
-                            )}
+            <TimelineView 
+                tasks={tasks} 
+                onTaskClick={setSelectedTask} 
+            />
 
-                            <div className="flex items-center gap-4 text-sm text-slate-400">
-                                {task.requiresPhoto && <span>📷 Photo required</span>}
-                                {task.requiresGps && <span>📍 Location required</span>}
-                            </div>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-yellow-400 font-bold text-xl">+{task.basePoints}</span>
-                                    <span className="text-slate-500 text-sm">points</span>
-                                </div>
-
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button
-                                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                                            onClick={() => setSelectedTask(task)}
-                                        >
-                                            Start Task
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="bg-slate-900 border-slate-700">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-white">Submit Proof</DialogTitle>
-                                            <DialogDescription className="text-slate-400">
-                                                Upload your proof to complete: {selectedTask?.title}
-                                            </DialogDescription>
-                                        </DialogHeader>
-
-                                        <div className="space-y-4 py-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="proofUrl" className="text-slate-200">Proof URL</Label>
-                                                <Input
-                                                    id="proofUrl"
-                                                    placeholder="https://example.com/image.jpg"
-                                                    value={proofUrl}
-                                                    onChange={(e) => setProofUrl(e.target.value)}
-                                                    className="bg-slate-800/50 border-slate-700 focus:border-purple-500"
-                                                />
-                                                <p className="text-xs text-slate-500">
-                                                    Upload your image to a hosting service and paste the URL here
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <DialogFooter>
-                                            <Button
-                                                onClick={handleSubmit}
-                                                disabled={isSubmitting}
-                                                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                                            >
-                                                {isSubmitting ? 'Submitting...' : 'Submit for Review'}
-                                            </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            {tasks.length === 0 && (
-                <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardContent className="py-12 text-center">
-                        <p className="text-slate-400">No tasks available at the moment</p>
-                    </CardContent>
-                </Card>
-            )}
-        </div>
+            <TaskDetailSheet 
+                task={selectedTask} 
+                open={!!selectedTask} 
+                onOpenChange={(open) => !open && setSelectedTask(null)}
+                onStart={() => {
+                   toast.info("Task Started! Good luck.");
+                }}
+            />
+            
+            {/* Hidden dialog for submission logic re-use if needed later */ }
+    <Dialog open={!!(selectedTask && proofUrl === 'TRIGGER_SUBMIT')} onOpenChange={() => setProofUrl('')}>
+    </Dialog>
+        </div >
     );
 }
