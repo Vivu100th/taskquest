@@ -14,11 +14,15 @@ interface SandClockTimerProps {
 }
 
 export function SandClockTimer({ taskId, initialMinutes = 25, activeTask, onComplete, onClose }: SandClockTimerProps) {
-    const MAX_MINUTES = 120;
+    const MAX_MINUTES = 240;
     const RADIUS = 140;
     const STROKE_WIDTH = 16;
     const CENTER = 160;
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+    // ... (omitting lines for brevity in tool call, I will target specific chunks)
+
+
 
     // Calculate initial state from activeTask if present
     const getInitialSeconds = () => {
@@ -154,12 +158,12 @@ export function SandClockTimer({ taskId, initialMinutes = 25, activeTask, onComp
         );
     }
 
-    // Labels (120, 30, 60, 90)
+    // Labels (240, 60, 120, 180)
     const labels = [
-        { value: 120, angle: -Math.PI / 2 },
-        { value: 30, angle: 0 },
-        { value: 60, angle: Math.PI / 2 },
-        { value: 90, angle: Math.PI },
+        { value: 240, angle: -Math.PI / 2 },
+        { value: 60, angle: 0 },
+        { value: 120, angle: Math.PI / 2 },
+        { value: 180, angle: Math.PI },
     ];
 
     // Drag Handlers (only when not started)
