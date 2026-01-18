@@ -14,14 +14,14 @@ export class TasksController {
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     create(@Body() createTaskDto: CreateTaskDto, @Request() req: any) {
-        return this.tasksService.create(createTaskDto, req.user.id);
+        return this.tasksService.create(createTaskDto, req.user.userId);
     }
 
     @Get()
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     findAll(@Request() req: any) {
-        return this.tasksService.findAll(req.user.id);
+        return this.tasksService.findAll(req.user.userId);
     }
 
     @Get(':id')
