@@ -147,6 +147,7 @@ export interface Task {
     requiresPhoto: boolean;
     requiresGps: boolean;
     creatorId?: string | null;
+    creator?: User;
     active: boolean;
 
     // Scheduling
