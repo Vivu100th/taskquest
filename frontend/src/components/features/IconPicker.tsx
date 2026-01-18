@@ -30,7 +30,7 @@ export function IconPicker({ icon, onChange }: IconPickerProps) {
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-                <button className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-dashed border-indigo-200 flex items-center justify-center text-3xl shadow-sm hover:scale-105 transition-transform">
+                <button className="w-14 h-14 rounded-full bg-muted/50 border-2 border-dashed border-primary/20 flex items-center justify-center text-3xl shadow-sm hover:scale-105 transition-transform">
                     {icon || <span className="text-xl opacity-50">✨</span>}
                 </button>
             </PopoverTrigger>
@@ -71,7 +71,7 @@ export function IconPicker({ icon, onChange }: IconPickerProps) {
                             onChange={(e) => setCustomInput(e.target.value)}
                             className="rounded-xl"
                         />
-                        <Button type="submit" size="sm" className="rounded-xl bg-indigo-500 hover:bg-indigo-600">
+                        <Button type="submit" size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground">
                             Set
                         </Button>
                     </form>
