@@ -14,6 +14,7 @@ export class TasksService {
                 requiresPhoto: createTaskDto.requiresPhoto ?? true,
                 requiresGps: createTaskDto.requiresGps ?? false,
                 isAllDay: createTaskDto.isAllDay ?? false,
+                icon: createTaskDto.icon,
                 startTime: createTaskDto.startTime ? new Date(createTaskDto.startTime) : null,
                 endTime: createTaskDto.endTime ? new Date(createTaskDto.endTime) : null,
                 creatorId: userId,

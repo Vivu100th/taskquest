@@ -65,6 +65,7 @@ model Task {
   endTime       DateTime?
   duration      Int?      // Minutes
   isAllDay      Boolean   @default(false)
+  icon          String?   // Emoji or URL
   
   // Creator (null for system tasks, set for user tasks)
   creatorId   String?

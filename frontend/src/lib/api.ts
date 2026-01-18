@@ -146,6 +146,8 @@ export interface Task {
     endTime?: string;
     duration?: number;
     isAllDay?: boolean;
+    icon?: string;
+    points?: number; // legacy support if needed
 }
 
 export interface CreateTaskDto {
@@ -162,6 +164,7 @@ export interface CreateTaskDto {
     endTime?: string;
     duration?: number;
     isAllDay?: boolean;
+    icon?: string;
 }
 
 export interface UserTask {

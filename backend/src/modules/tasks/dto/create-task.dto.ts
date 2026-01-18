@@ -49,4 +49,8 @@ export class CreateTaskDto {
     @IsBoolean()
     @IsOptional()
     isAllDay?: boolean;
+
+    @IsString()
+    @IsOptional()
+    icon?: string;
 }

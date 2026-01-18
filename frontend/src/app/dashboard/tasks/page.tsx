@@ -7,18 +7,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { TimelineView } from '@/components/features/TimelineView';
 import { TaskDetailSheet } from '@/components/features/TaskDetailSheet';
 import { BioBreak } from '@/components/features/BioBreak';
-
-const CATEGORIES = [
-    { id: 'cat-health', name: 'Health & Fitness' },
-    { id: 'cat-learning', name: 'Learning' },
-    { id: 'cat-productivity', name: 'Productivity' },
-    { id: 'cat-social', name: 'Social' },
-];
+import { IconPicker } from '@/components/features/IconPicker';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function TasksPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -32,11 +29,17 @@ export default function TasksPage() {
     const [newTask, setNewTask] = useState<CreateTaskDto>({
         title: '',
         description: '',
-        categoryId: 'cat-health',
+        categoryId: 'cat-productivity',
         difficulty: 'EASY',
         basePoints: 10,
         requiresPhoto: true,
+        icon: '📝',
+        duration: 60,
+        isAllDay: false,
+        startTime: new Date().toISOString(),
     });
+
+    const [timeChip, setTimeChip] = useState<'ALL_DAY' | 'MORNING' | 'NOON' | 'AFTERNOON'>('MORNING');
 
     const fetchTasks = async () => {
         try {
@@ -53,22 +56,19 @@ export default function TasksPage() {
         fetchTasks();
     }, []);
 
-    const handleSubmit = async () => {
-        if (!selectedTask || !proofUrl) {
-            toast.error('Please provide proof URL');
-            return;
-        }
+    // Handle Time Chip Selection
+    const handleTimeChip = (chip: typeof timeChip) => {
+        setTimeChip(chip);
+        const now = new Date();
+        const start = new Date(newTask.startTime || now);
 
-        setIsSubmitting(true);
-        try {
-            await api.submitTask(selectedTask.id, { proofUrl });
-            toast.success('Task submitted for review!');
-            setSelectedTask(null);
-            setProofUrl('');
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Submission failed');
-        } finally {
-            setIsSubmitting(false);
+        if (chip === 'ALL_DAY') {
+            setNewTask({ ...newTask, isAllDay: true });
+        } else {
+            if (chip === 'MORNING') start.setHours(9, 0, 0, 0);
+            if (chip === 'NOON') start.setHours(12, 0, 0, 0);
+            if (chip === 'AFTERNOON') start.setHours(14, 0, 0, 0);
+            setNewTask({ ...newTask, isAllDay: false, startTime: start.toISOString() });
         }
     };
 
@@ -87,14 +87,19 @@ export default function TasksPage() {
             toast.success('Task created successfully!');
             setIsCreateOpen(false);
             fetchTasks(); // Refresh list
+
             // Reset form
             setNewTask({
                 title: '',
                 description: '',
-                categoryId: 'cat-health',
+                categoryId: 'cat-productivity',
                 difficulty: 'EASY',
                 basePoints: 10,
                 requiresPhoto: true,
+                icon: '📝',
+                duration: 60,
+                isAllDay: false,
+                startTime: new Date().toISOString(),
             });
         } catch (error) {
             toast.error('Failed to create task');
@@ -121,70 +126,107 @@ export default function TasksPage() {
 
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
-                        <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground">
-                            <Plus className="w-6 h-6" />
+                        <Button size="icon" className="h-14 w-14 rounded-full shadow-xl bg-indigo-500 hover:bg-indigo-600 text-white transition-transform hover:scale-105">
+                            <Plus className="w-7 h-7" />
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-card border-border sm:max-w-md">
-                        <DialogHeader>
-                            <DialogTitle>Quick Add</DialogTitle>
-                            <DialogDescription>Brain dump your task. We'll help you organize it.</DialogDescription>
-                        </DialogHeader>
+                    {/* Concetp.html inspired Dialog */}
+                    <DialogContent className="bg-background border-none rounded-[40px] p-0 overflow-hidden sm:max-w-[450px] shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+                        <div className="p-6 pb-2 flex justify-between items-center bg-white dark:bg-slate-900/50">
+                            <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">Task Info</h3>
+                        </div>
 
-                        <div className="space-y-4 py-4">
+                        <div className="px-6 py-4 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
+
+                            {/* Icon & Title Row */}
+                            <div className="flex gap-4 items-start">
+                                <IconPicker
+                                    icon={newTask.icon || '📝'}
+                                    onChange={(icon) => setNewTask({ ...newTask, icon })}
+                                />
+                                <div className="flex-1 space-y-2">
+                                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Task Name</Label>
+                                    <Input
+                                        value={newTask.title}
+                                        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                                        placeholder="E.g. Finish Web Design"
+                                        className="bg-slate-50 border-slate-100 rounded-2xl h-14 text-lg focus-visible:ring-indigo-500"
+                                        autoFocus
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Time Chips */}
                             <div className="space-y-2">
-                                <Label>What needs doing?</Label>
-                                <Input
-                                    value={newTask.title}
-                                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                                    placeholder="e.g. Clean the room"
-                                    className="bg-input border-transparent text-lg h-12"
-                                    autoFocus
+                                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Time of Day</Label>
+                                <div className="flex flex-wrap gap-2">
+                                    {['ALL_DAY', 'MORNING', 'NOON', 'AFTERNOON'].map((t) => (
+                                        <div
+                                            key={t}
+                                            onClick={() => handleTimeChip(t as any)}
+                                            className={cn(
+                                                "px-4 py-2.5 rounded-2xl text-sm font-bold cursor-pointer transition-all border-2",
+                                                timeChip === t
+                                                    ? "bg-indigo-50/50 text-indigo-600 border-indigo-500"
+                                                    : "bg-slate-50 text-slate-500 border-transparent hover:bg-slate-100"
+                                            )}
+                                        >
+                                            {t === 'ALL_DAY' ? 'All Day' : t === 'MORNING' ? 'Morning' : t === 'NOON' ? 'Noon' : 'Afternoon'}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Date & Duration Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Date</Label>
+                                    <Input
+                                        type="date"
+                                        value={newTask.startTime ? format(new Date(newTask.startTime), 'yyyy-MM-dd') : ''}
+                                        onChange={(e) => {
+                                            const d = new Date(e.target.value);
+                                            // Preserve time
+                                            const current = new Date(newTask.startTime || new Date());
+                                            d.setHours(current.getHours(), current.getMinutes());
+                                            setNewTask({ ...newTask, startTime: d.toISOString() });
+                                        }}
+                                        className="bg-slate-50 border-slate-100 rounded-2xl h-12"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Duration (Min)</Label>
+                                    <Input
+                                        type="number"
+                                        value={newTask.duration}
+                                        onChange={(e) => setNewTask({ ...newTask, duration: Number(e.target.value) })}
+                                        className="bg-slate-50 border-slate-100 rounded-2xl h-12"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Description / Notes */}
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Notes</Label>
+                                <Textarea
+                                    value={newTask.description}
+                                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                    placeholder="Add details..."
+                                    className="bg-slate-50 border-slate-100 rounded-2xl min-h-[100px] resize-none focus-visible:ring-indigo-500"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Category</Label>
-                                    <Select
-                                        value={newTask.categoryId}
-                                        onValueChange={(val) => setNewTask({ ...newTask, categoryId: val })}
-                                    >
-                                        <SelectTrigger className="bg-input border-transparent">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {CATEGORIES.map(cat => (
-                                                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Difficulty</Label>
-                                    <Select
-                                        value={newTask.difficulty}
-                                        onValueChange={(val: any) => setNewTask({ ...newTask, difficulty: val })}
-                                    >
-                                        <SelectTrigger className="bg-input border-transparent">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="EASY">Easy</SelectItem>
-                                            <SelectItem value="MEDIUM">Medium</SelectItem>
-                                            <SelectItem value="HARD">Hard</SelectItem>
-                                            <SelectItem value="EPIC">Epic</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
                         </div>
 
-                        <DialogFooter>
-                            <Button onClick={handleCreateTask} disabled={isSubmitting} className="w-full h-12 text-lg rounded-xl">
-                                {isSubmitting ? 'Adding...' : 'Add to Timeline'}
+                        <div className="p-6 pt-2 bg-background">
+                            <Button
+                                onClick={handleCreateTask}
+                                disabled={isSubmitting}
+                                className="w-full h-14 text-lg font-bold rounded-2xl bg-indigo-500 hover:bg-indigo-600 shadow-lg shadow-indigo-200 dark:shadow-none"
+                            >
+                                {isSubmitting ? 'Creating...' : 'Create Task'}
                             </Button>
-                        </DialogFooter>
+                        </div>
                     </DialogContent>
                 </Dialog>
             </div>
