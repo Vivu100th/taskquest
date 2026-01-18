@@ -136,3 +136,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Sensory Design - Gentle Animations */
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+/* Accessibility */
+.font-dyslexic {
+  font-family: 'OpenDyslexic', sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.05em;
+}
+
+/* Utility for Past Tasks */
+.task-past {
+  opacity: 0.6;
+  filter: grayscale(0.4);
+  transition: all 0.5s ease;
+}
