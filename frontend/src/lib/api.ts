@@ -138,7 +138,14 @@ export interface Task {
     basePoints: number;
     requiresPhoto: boolean;
     requiresGps: boolean;
+    creatorId?: string | null;
     active: boolean;
+
+    // Scheduling
+    startTime?: string;
+    endTime?: string;
+    duration?: number;
+    isAllDay?: boolean;
 }
 
 export interface CreateTaskDto {
@@ -149,6 +156,12 @@ export interface CreateTaskDto {
     basePoints: number;
     requiresPhoto?: boolean;
     requiresGps?: boolean;
+
+    // Scheduling
+    startTime?: string;
+    endTime?: string;
+    duration?: number;
+    isAllDay?: boolean;
 }
 
 export interface UserTask {
