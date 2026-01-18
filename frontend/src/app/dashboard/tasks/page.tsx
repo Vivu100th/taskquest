@@ -206,6 +206,7 @@ export default function TasksPage() {
             {/* Hidden dialog for submission logic re-use if needed later */}
             <Dialog open={!!(selectedTask && proofUrl === 'TRIGGER_SUBMIT')} onOpenChange={() => setProofUrl('')}>
             </Dialog>
+            <BioBreak />
         </div >
     );
 }
