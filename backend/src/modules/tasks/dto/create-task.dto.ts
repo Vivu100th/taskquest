@@ -16,7 +16,7 @@ export class CreateTaskDto {
     @IsOptional()
     description?: string;
 
-    @IsUUID()
+    @IsString()
     categoryId: string;
 
     @IsEnum(Difficulty)
