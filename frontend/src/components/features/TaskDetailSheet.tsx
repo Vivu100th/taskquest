@@ -20,6 +20,7 @@ interface TaskDetailSheetProps {
 }
 
 export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }: TaskDetailSheetProps) {
+    const { user } = useAuth();
     const [isDeleting, setIsDeleting] = useState(false);
 
     if (!task) return null;
@@ -61,12 +62,18 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                                 variant="ghost"
                                 size="icon"
                                 onClick={handleDelete}
-                                disabled={isDeleting || !task.creatorId}
-                                className={`h-8 w-8 rounded-full transition-colors relative z-50 ${task.creatorId
-                                    ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                    : "text-muted-foreground/30 cursor-not-allowed"
+                                disabled={isDeleting || (!task.creatorId && user?.role !== 'ADMIN')}
+                                className={`h-8 w-8 rounded-full transition-colors relative z-50 ${(task.creatorId || user?.role === 'ADMIN')
+                                        ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                        : "text-muted-foreground/30 cursor-not-allowed"
                                     }`}
-                                title={task.creatorId ? "Delete Task" : "Cannot delete system tasks"}
+                                title={
+                                    user?.role === 'ADMIN'
+                                        ? "Delete Task (Admin)"
+                                        : task.creatorId
+                                            ? "Delete Task"
+                                            : "Cannot delete system tasks"
+                                }
                             >
                                 <Trash2 className="w-5 h-5" />
                             </Button>
@@ -75,6 +82,11 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
 
                     <div>
                         <SheetTitle className="text-2xl font-bold text-foreground">{task.title}</SheetTitle>
+                        {task.creator && (
+                            <div className="text-xs font-semibold text-primary mt-1 mb-2">
+                                Created by: @{task.creator.username}
+                            </div>
+                        )}
                         <SheetDescription className="text-base text-muted-foreground mt-2">
                             {task.description || "No description provided."}
                         </SheetDescription>
