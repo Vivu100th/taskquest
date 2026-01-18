@@ -117,9 +117,11 @@ export default function TasksPage() {
                     <h1 className="text-3xl font-bold text-foreground">My Day</h1>
                     <p className="text-muted-foreground mt-1 text-lg">Focus on what matters now.</p>
                 </div>
-                
+
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
+                        <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground">
+                            <Plus className="w-6 h-6" />
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-card border-border sm:max-w-md">
@@ -127,25 +129,25 @@ export default function TasksPage() {
                             <DialogTitle>Quick Add</DialogTitle>
                             <DialogDescription>Brain dump your task. We'll help you organize it.</DialogDescription>
                         </DialogHeader>
-                        
+
                         <div className="space-y-4 py-4">
                             <div className="space-y-2">
                                 <Label>What needs doing?</Label>
-                                <Input 
+                                <Input
                                     value={newTask.title}
-                                    onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                     placeholder="e.g. Clean the room"
                                     className="bg-input border-transparent text-lg h-12"
                                     autoFocus
                                 />
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Category</Label>
-                                    <Select 
-                                        value={newTask.categoryId} 
-                                        onValueChange={(val) => setNewTask({...newTask, categoryId: val})}
+                                    <Select
+                                        value={newTask.categoryId}
+                                        onValueChange={(val) => setNewTask({ ...newTask, categoryId: val })}
                                     >
                                         <SelectTrigger className="bg-input border-transparent">
                                             <SelectValue />
@@ -159,9 +161,9 @@ export default function TasksPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Difficulty</Label>
-                                    <Select 
-                                        value={newTask.difficulty} 
-                                        onValueChange={(val: any) => setNewTask({...newTask, difficulty: val})}
+                                    <Select
+                                        value={newTask.difficulty}
+                                        onValueChange={(val: any) => setNewTask({ ...newTask, difficulty: val })}
                                     >
                                         <SelectTrigger className="bg-input border-transparent">
                                             <SelectValue />
@@ -186,23 +188,23 @@ export default function TasksPage() {
                 </Dialog>
             </div>
 
-            <TimelineView 
-                tasks={tasks} 
-                onTaskClick={setSelectedTask} 
+            <TimelineView
+                tasks={tasks}
+                onTaskClick={setSelectedTask}
             />
 
-            <TaskDetailSheet 
-                task={selectedTask} 
-                open={!!selectedTask} 
+            <TaskDetailSheet
+                task={selectedTask}
+                open={!!selectedTask}
                 onOpenChange={(open) => !open && setSelectedTask(null)}
                 onStart={() => {
-                   toast.info("Task Started! Good luck.");
+                    toast.info("Task Started! Good luck.");
                 }}
             />
-            
-            {/* Hidden dialog for submission logic re-use if needed later */ }
-    <Dialog open={!!(selectedTask && proofUrl === 'TRIGGER_SUBMIT')} onOpenChange={() => setProofUrl('')}>
-    </Dialog>
+
+            {/* Hidden dialog for submission logic re-use if needed later */}
+            <Dialog open={!!(selectedTask && proofUrl === 'TRIGGER_SUBMIT')} onOpenChange={() => setProofUrl('')}>
+            </Dialog>
         </div >
     );
 }
