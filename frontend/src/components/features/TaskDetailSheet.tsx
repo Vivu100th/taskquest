@@ -60,7 +60,7 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                                 size="icon"
                                 onClick={handleDelete}
                                 disabled={isDeleting || !task.creatorId}
-                                className={`h-8 w-8 rounded-full transition-colors ${task.creatorId
+                                className={`h-8 w-8 rounded-full transition-colors relative z-50 ${task.creatorId
                                     ? "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                     : "text-muted-foreground/30 cursor-not-allowed"
                                     }`}
