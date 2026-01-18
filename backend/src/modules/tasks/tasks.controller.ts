@@ -21,7 +21,7 @@ export class TasksController {
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
     findAll(@Request() req: any) {
-        return this.tasksService.findAll(req.user.userId);
+        return this.tasksService.findAll(req.user.userId, req.user.role);
     }
 
     @Get(':id')
