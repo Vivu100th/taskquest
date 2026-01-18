@@ -6,17 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
-    { href: '/dashboard/tasks', label: 'Tasks', icon: '📋' },
-    { href: '/dashboard/leaderboard', label: 'Leaderboard', icon: '🏆' },
-    { href: '/dashboard/profile', label: 'Profile', icon: '👤' },
-];
-
-const adminItems = [
-    { href: '/dashboard/admin/submissions', label: 'Review Submissions', icon: '✅' },
-];
+import { navItems, adminItems } from '@/config/nav';
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -25,7 +15,7 @@ export function Sidebar() {
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'MODERATOR';
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-800/50 backdrop-blur-xl border-r border-slate-700/50 flex flex-col">
+        <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-slate-800/50 backdrop-blur-xl border-r border-slate-700/50 flex-col">
             {/* Logo */}
             <div className="p-6 border-b border-slate-700/50">
                 <Link href="/dashboard" className="flex items-center gap-3">
@@ -65,8 +55,8 @@ export function Sidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
-                                    ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 text-white'
-                                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                                ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 text-white'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                                 }`}
                         >
                             <span className="text-lg">{item.icon}</span>
@@ -87,8 +77,8 @@ export function Sidebar() {
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
-                                            ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white'
-                                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                                        ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white'
+                                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                                         }`}
                                 >
                                     <span className="text-lg">{item.icon}</span>

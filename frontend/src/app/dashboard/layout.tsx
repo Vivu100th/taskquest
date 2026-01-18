@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Sidebar } from '@/components/features/Sidebar';
 
+import { MobileNav } from '@/components/features/MobileNav';
+
 export default function DashboardLayout({
     children,
 }: {
@@ -32,9 +34,10 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen bg-slate-900 flex">
+        <div className="min-h-screen bg-slate-900 flex flex-col md:flex-row">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8">
+            <MobileNav />
+            <main className="flex-1 md:ml-64 p-4 md:p-8">
                 {children}
             </main>
         </div>
