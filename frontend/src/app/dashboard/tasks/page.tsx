@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
+import { TimelineView } from '@/components/features/TimelineView';
+import { TaskDetailSheet } from '@/components/features/TaskDetailSheet';
 
 const difficultyColors: Record<string, string> = {
     EASY: 'bg-green-500/20 text-green-400 border-green-500/50',
