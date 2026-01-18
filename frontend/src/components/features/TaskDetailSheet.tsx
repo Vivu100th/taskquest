@@ -5,13 +5,14 @@ import { useAuth } from "@/lib/auth-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Task } from "@/lib/api";
+import { Task, UserTask } from "@/lib/api";
 import { Play, CheckCircle2, Clock, MapPin, Camera, Trash2, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { useState } from "react";
 import { SandClockTimer } from "@/components/features/SandClockTimer";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface TaskDetailSheetProps {
     task: Task | null;
@@ -19,12 +20,14 @@ interface TaskDetailSheetProps {
     onOpenChange: (open: boolean) => void;
     onStart: (task: Task) => void;
     onDelete?: () => void; // Callback to refresh list
+    activeUserTask?: UserTask | null; // Pass active timer state if any
 }
 
-export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }: TaskDetailSheetProps) {
+export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete, activeUserTask }: TaskDetailSheetProps) {
     const { user } = useAuth();
     const [isDeleting, setIsDeleting] = useState(false);
-    const [isTimerOpen, setIsTimerOpen] = useState(false);
+    // If passed activeUserTask matching this task, open timer automatically
+    const [isTimerOpen, setIsTimerOpen] = useState(!!(activeUserTask && activeUserTask.taskId === task?.id));
 
     if (!task) return null;
 
@@ -166,9 +169,14 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-none w-auto bg-transparent border-none shadow-none p-0 focus:outline-none" showCloseButton={false}>
+                            <VisuallyHidden>
+                                <DialogTitle>Focus Timer</DialogTitle>
+                                <DialogDescription>Sand clock timer for task execution</DialogDescription>
+                            </VisuallyHidden>
                             <SandClockTimer
                                 taskId={task.id}
                                 initialMinutes={task.duration || 25}
+                                activeTask={activeUserTask?.taskId === task.id ? activeUserTask : undefined}
                                 onClose={() => setIsTimerOpen(false)}
                                 onComplete={() => {
                                     setIsTimerOpen(false);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { api, Task, CreateTaskDto } from '@/lib/api';
+import { api, Task, CreateTaskDto, UserTask } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ export default function TasksPage() {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [proofUrl, setProofUrl] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [activeUserTask, setActiveUserTask] = useState<UserTask | null>(null);
 
     // Create Task State
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -43,8 +44,17 @@ export default function TasksPage() {
 
     const fetchTasks = async () => {
         try {
-            const data = await api.getTasks();
-            setTasks(data);
+            const [tasksData, activeTaskData] = await Promise.all([
+                api.getTasks(),
+                api.getActiveTask().catch(() => null)
+            ]);
+            setTasks(tasksData);
+            setActiveUserTask(activeTaskData);
+
+            // Auto-open active task on initial load if exists
+            if (activeTaskData?.task && isLoading) {
+                setSelectedTask(activeTaskData.task);
+            }
         } catch (error) {
             console.error('Failed to fetch tasks:', error);
         } finally {
@@ -244,6 +254,7 @@ export default function TasksPage() {
                     toast.info("Task Started! Good luck.");
                 }}
                 onDelete={fetchTasks}
+                activeUserTask={activeUserTask}
             />
 
             {/* Hidden dialog for submission logic re-use if needed later */}
