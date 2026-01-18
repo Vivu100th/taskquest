@@ -167,18 +167,13 @@ export function TaskDetailSheet({ task, open, onOpenChange, onStart, onDelete }:
                         </DialogTrigger>
                         <DialogContent className="max-w-none w-auto bg-transparent border-none shadow-none p-0 focus:outline-none" showCloseButton={false}>
                             <SandClockTimer
+                                taskId={task.id}
                                 initialMinutes={task.duration || 25}
                                 onClose={() => setIsTimerOpen(false)}
-                                onComplete={async () => {
+                                onComplete={() => {
                                     setIsTimerOpen(false);
-                                    try {
-                                        await api.deleteTask(task.id);
-                                        toast.success("Task completed & removed! 🎉");
-                                        onOpenChange(false);
-                                        if (onDelete) onDelete();
-                                    } catch (error) {
-                                        toast.error("Task finished, but failed to remove.");
-                                    }
+                                    onOpenChange(false);
+                                    if (onDelete) onDelete();
                                 }}
                             />
                         </DialogContent>

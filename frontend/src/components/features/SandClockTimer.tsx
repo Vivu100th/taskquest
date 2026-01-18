@@ -2,24 +2,52 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { api, UserTask } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface SandClockTimerProps {
+    taskId: string;
     initialMinutes?: number;
+    activeTask?: UserTask | null; // If resuming from existing timer
     onComplete?: () => void;
     onClose?: () => void;
 }
 
-export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: SandClockTimerProps) {
+export function SandClockTimer({ taskId, initialMinutes = 25, activeTask, onComplete, onClose }: SandClockTimerProps) {
     const MAX_MINUTES = 60;
     const RADIUS = 140;
     const STROKE_WIDTH = 16;
     const CENTER = 160;
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-    const [totalSeconds, setTotalSeconds] = useState(initialMinutes * 60);
-    const [currentSeconds, setCurrentSeconds] = useState(initialMinutes * 60);
-    const [isRunning, setIsRunning] = useState(false);
+    // Calculate initial state from activeTask if present
+    const getInitialSeconds = () => {
+        if (activeTask?.timerStartedAt && activeTask.timerDuration && !activeTask.timerPausedAt) {
+            // Timer is running - calculate remaining
+            const startTime = new Date(activeTask.timerStartedAt).getTime();
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            return Math.max(0, activeTask.timerDuration - elapsed);
+        }
+        if (activeTask?.timerPausedAt && activeTask.timerRemainingSeconds !== undefined) {
+            // Timer is paused
+            return activeTask.timerRemainingSeconds;
+        }
+        return initialMinutes * 60;
+    };
+
+    const getInitialRunning = () => {
+        if (activeTask?.timerStartedAt && !activeTask.timerPausedAt) {
+            return true; // Timer was running
+        }
+        return false;
+    };
+
+    const [totalSeconds, setTotalSeconds] = useState(activeTask?.timerDuration || initialMinutes * 60);
+    const [currentSeconds, setCurrentSeconds] = useState(getInitialSeconds);
+    const [isRunning, setIsRunning] = useState(getInitialRunning);
     const [isDragging, setIsDragging] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasStarted, setHasStarted] = useState(!!activeTask?.timerStartedAt);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const alarmAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -39,19 +67,54 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                 setCurrentSeconds(prev => {
                     if (prev <= 1) {
                         setIsRunning(false);
-                        if (onComplete) onComplete();
+                        handleComplete();
                         alarmAudioRef.current?.play().catch(() => { });
                         return 0;
                     }
                     return prev - 1;
                 });
             }, 1000);
-        } else if (currentSeconds === 0 && isRunning) {
-            setIsRunning(false);
-            if (onComplete) onComplete();
         }
         return () => clearInterval(interval);
-    }, [isRunning, currentSeconds, onComplete]);
+    }, [isRunning, currentSeconds]);
+
+    const handleComplete = async () => {
+        setIsLoading(true);
+        try {
+            await api.completeTask(taskId);
+            toast.success('Task completed! 🎉');
+            if (onComplete) onComplete();
+        } catch (error) {
+            toast.error('Failed to complete task');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleStartPause = async () => {
+        setIsLoading(true);
+        try {
+            if (!hasStarted) {
+                // First time starting - call API
+                await api.startTask(taskId, currentSeconds);
+                setHasStarted(true);
+                setIsRunning(true);
+                setTotalSeconds(currentSeconds);
+            } else if (isRunning) {
+                // Pause
+                await api.pauseTask(taskId);
+                setIsRunning(false);
+            } else {
+                // Resume
+                await api.resumeTask(taskId);
+                setIsRunning(true);
+            }
+        } catch (error: unknown) {
+            toast.error(error instanceof Error ? error.message : 'Timer action failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Calculations
     const minutes = Math.ceil(currentSeconds / 60);
@@ -99,9 +162,9 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
         { value: 45, angle: Math.PI },
     ];
 
-    // Drag Handlers
+    // Drag Handlers (only when not started)
     const handleDrag = useCallback((clientX: number, clientY: number) => {
-        if (!containerRef.current) return;
+        if (!containerRef.current || hasStarted) return;
         const rect = containerRef.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -122,19 +185,17 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
 
         const newSeconds = mins * 60;
         setCurrentSeconds(newSeconds);
-        if (!isRunning) {
-            setTotalSeconds(newSeconds);
-        }
-    }, [isRunning]);
+        setTotalSeconds(newSeconds);
+    }, [hasStarted]);
 
     const onMouseDown = (e: React.MouseEvent) => {
-        if (isRunning) return;
+        if (hasStarted) return;
         setIsDragging(true);
         handleDrag(e.clientX, e.clientY);
     };
 
     const onTouchStart = (e: React.TouchEvent) => {
-        if (isRunning) return;
+        if (hasStarted) return;
         setIsDragging(true);
         handleDrag(e.touches[0].clientX, e.touches[0].clientY);
     };
@@ -189,7 +250,7 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                 ref={containerRef}
                 className={cn(
                     "relative w-[320px] h-[320px] flex items-center justify-center",
-                    !isRunning && "cursor-grab",
+                    !hasStarted && "cursor-grab",
                     isDragging && "cursor-grabbing"
                 )}
                 onMouseDown={onMouseDown}
@@ -249,8 +310,8 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                         );
                     })}
 
-                    {/* Knob Handle */}
-                    {!isRunning && (
+                    {/* Knob Handle - only show when not started */}
+                    {!hasStarted && (
                         <circle
                             cx={knobX}
                             cy={knobY}
@@ -270,32 +331,33 @@ export function SandClockTimer({ initialMinutes = 25, onComplete, onClose }: San
                 {/* Center Content */}
                 <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-6xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">
-                        {isRunning ? Math.floor(currentSeconds / 60).toString().padStart(2, '0') + ':' + (currentSeconds % 60).toString().padStart(2, '0') : minutes}
+                        {hasStarted ? Math.floor(currentSeconds / 60).toString().padStart(2, '0') + ':' + (currentSeconds % 60).toString().padStart(2, '0') : minutes}
                     </span>
                     <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">
-                        {isRunning ? '' : 'MINS'}
+                        {hasStarted ? '' : 'MINS'}
                     </span>
                 </div>
             </div>
 
             {/* Start/Pause Button */}
             <Button
-                onClick={() => setIsRunning(!isRunning)}
+                onClick={handleStartPause}
+                disabled={isLoading}
                 className={cn(
                     "px-8 py-6 text-lg font-semibold rounded-2xl transition-all shadow-lg",
-                    isRunning
-                        ? "bg-slate-800 hover:bg-slate-700 text-white dark:bg-slate-200 dark:hover:bg-slate-300 dark:text-slate-900"
-                        : "bg-slate-800 hover:bg-slate-700 text-white dark:bg-slate-200 dark:hover:bg-slate-300 dark:text-slate-900"
+                    "bg-slate-800 hover:bg-slate-700 text-white dark:bg-slate-200 dark:hover:bg-slate-300 dark:text-slate-900"
                 )}
             >
-                {isRunning ? (
+                {isLoading ? (
+                    <span>Loading...</span>
+                ) : isRunning ? (
                     <>
                         <Pause className="w-5 h-5 mr-2 fill-current" />
                         Pause
                     </>
                 ) : (
                     <>
-                        <span>Start</span>
+                        <span>{hasStarted ? 'Resume' : 'Start'}</span>
                         <Play className="w-5 h-5 ml-2 fill-current" />
                     </>
                 )}

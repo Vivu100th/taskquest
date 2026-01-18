@@ -123,6 +123,30 @@ class ApiClient {
     async getMyStats() {
         return this.request<UserStats>('/gamification/stats');
     }
+
+    // ===== Timer Control =====
+    async getActiveTask() {
+        return this.request<UserTask | null>('/tasks/active');
+    }
+
+    async startTask(taskId: string, durationSeconds: number) {
+        return this.request<UserTask>(`/tasks/${taskId}/start`, {
+            method: 'POST',
+            body: { durationSeconds },
+        });
+    }
+
+    async pauseTask(taskId: string) {
+        return this.request<UserTask>(`/tasks/${taskId}/pause`, { method: 'POST' });
+    }
+
+    async resumeTask(taskId: string) {
+        return this.request<UserTask>(`/tasks/${taskId}/resume`, { method: 'POST' });
+    }
+
+    async completeTask(taskId: string) {
+        return this.request<{ success: boolean }>(`/tasks/${taskId}/complete`, { method: 'POST' });
+    }
 }
 
 // Types
@@ -187,6 +211,11 @@ export interface UserTask {
     proofMeta?: object;
     submittedAt?: string;
     reviewedAt?: string;
+    // Timer tracking
+    timerStartedAt?: string;
+    timerDuration?: number;
+    timerPausedAt?: string;
+    timerRemainingSeconds?: number;
 }
 
 export interface LeaderboardEntry {

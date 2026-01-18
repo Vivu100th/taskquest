@@ -97,6 +97,12 @@ model UserTask {
   proofUrl    String?     // URL ảnh/file
   proofMeta   Json?       // GPS, metadata khác
   
+  // Timer tracking
+  timerStartedAt      DateTime?   // When timer was started
+  timerDuration       Int?        // Total duration in seconds
+  timerPausedAt       DateTime?   // When paused (null if running)
+  timerRemainingSeconds Int?      // Remaining seconds when paused
+  
   submittedAt DateTime?
   reviewedAt  DateTime?
   reviewedBy  String?     // Admin ID
