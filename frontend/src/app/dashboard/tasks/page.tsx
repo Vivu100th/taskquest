@@ -133,7 +133,7 @@ export default function TasksPage() {
                     {/* Concetp.html inspired Dialog */}
                     <DialogContent className="bg-background border-none rounded-[40px] p-0 overflow-hidden sm:max-w-[450px] shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
                         <div className="p-6 pb-2 flex justify-between items-center bg-white dark:bg-slate-900/50">
-                            <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">Task Info</h3>
+                            <DialogTitle className="text-xl font-extrabold text-foreground">Task Info</DialogTitle>
                         </div>
 
                         <div className="px-6 py-4 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
